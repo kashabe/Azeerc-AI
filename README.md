@@ -10,10 +10,10 @@
 
 ## 🔗 Connect
 
-[![Website](https://img.shields.io/badge/Website-YourWebsite-blue?logo=google-chrome)](https://azeercai.com/)
-[![Twitter](https://img.shields.io/badge/Twitter-@YourHandle-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/AzeercNetwork)
-[![Twitter](https://img.shields.io/badge/Twitter-@YourHandle-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/DavisWu21)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-YourProfile-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dwu21/)
+[![Website](https://img.shields.io/badge/Website-Azeerc-blue?logo=google-chrome)](https://azeercai.com/)
+[![Twitter](https://img.shields.io/badge/Twitter-@AzeercNetwork-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/AzeercNetwork)
+[![Twitter](https://img.shields.io/badge/Twitter-@DavisWu21-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/DavisWu21)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-dwu21-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dwu21/)
 
 ## Table of Contents
 1. [Key Features](#key-features)
