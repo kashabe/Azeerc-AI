@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package azeerc.ai.agent.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/azeerc-ai/proto/agent/v1;agentv1";
+option java_multiple_files = true;
+option java_package = "com.azeerc.ai.agent.v1";
+
+// Core Agent Service Definition
+service AgentService {
+  // Agent Lifecycle Management
+  rpc RegisterAgent(RegisterAgentRequest) returns (RegisterAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/agents"
+      body: "*"
+    };
+  }
+  
+  rpc Heartbeat(stream HeartbeatRequest) returns (stream HeartbeatResponse);
+  
+  rpc DeregisterAgent(DeregisterAgentRequest) returns (google.protobuf.Empty);
+
+  // State & Task Management
+  rpc GetAgentState(GetAgentStateRequest) returns (AgentState) {
+    option (google.api.http) = {
+      get: "/v1/agents/{agent_id}/state"
+    };
+  }
+  
+  rpc SubmitTask(SubmitTaskRequest) returns (TaskReceipt);
+  
+  rpc MonitorTasks(MonitorTasksRequest) returns (stream TaskUpdate);
+
+  // Cluster Operations  
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse);
+  
+  rpc BroadcastMessage(BroadcastMessageRequest) returns (BroadcastMessageResponse);
+}
+
+// Core Message Types
+message RegisterAgentRequest {
+  message Capabilities {
+    repeated string supported_task_types = 1;
+    uint32 max_concurrent_tasks = 2;
+    map<string, string> resource_limits = 3;  // e.g., {"cpu": "4", "mem": "8Gi"}
+  }
+
+  string agent_type = 1;
+  string host = 2;
+  uint32 port = 3;
+  Capabilities capabilities = 4;
+  map<string, string> metadata = 5;
+  string auth_token = 6;
+}
+
+message RegisterAgentResponse {
+  string agent_id = 1;
+  string session_token = 2;
+  google.protobuf.Timestamp expiration_time = 3;
+  ClusterConfig cluster_config = 4;
+}
+
+message HeartbeatRequest {
+  oneof content {
+    HealthStatus status = 1;
+    ResourceUsage metrics = 2;
+  }
+  
+  string agent_id = 3;
+  string session_token = 4;
+}
+
+message HeartbeatResponse {
+  oneof instruction {
+    TaskAssignment task = 1;
+    ConfigurationUpdate config = 2;
+    string diagnostic_command = 3;
+  }
+}
+
+message AgentState {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    IDLE = 1;
+    PROCESSING = 2;
+    MAINTENANCE = 3;
+    ERROR = 4;
+  }
+  
+  string agent_id = 1;
+  Status status = 2;
+  google.protobuf.Timestamp last_updated = 3;
+  map<string, string> metadata = 4;
+  repeated string active_task_ids = 5;
+}
+
+message TaskReceipt {
+  string task_id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  string assigned_agent = 3;
+  TaskPriority priority = 4;
+}
+
+// Cluster Management
+message ClusterConfig {
+  string coordinator_address = 1;
+  repeated string backup_coordinators = 2;
+  string discovery_service = 3;
+  uint32 heartbeat_interval = 4;  // in seconds
+}
+
+message ListAgentsRequest {
+  uint32 page_size = 1;
+  string page_token = 2;
+  string filter = 3;  // e.g., "status=IDLE,capabilities.supported_task_types=ML"
+}
+
+message ListAgentsResponse {
+  repeated AgentState agents = 1;
+  string next_page_token = 2;
+}
+
+// Error Handling
+message ErrorDetail {
+  string code = 1;       // e.g., "RESOURCE_EXHAUSTED"
+  string message = 2;    
+  string target = 3;     // e.g., "capabilities.mem"
+  repeated string details = 4;
+}
+
+// Extended Service Capabilities
+message BroadcastMessageRequest {
+  enum MessageType {
+    MESSAGE_TYPE_UNSPECIFIED = 0;
+    EMERGENCY_HALT = 1;
+    CONFIG_UPDATE = 2;
+    DATA_SYNC = 3;
+  }
+  
+  MessageType type = 1;
+  bytes payload = 2;
+  string sender_id = 3;
+  uint32 ttl = 4;  // Time-to-live in hops
+}
+
+message BroadcastMessageResponse {
+  uint32 recipients = 1;
+  repeated string failed_agents = 2;
+}
+
+// Custom Options for Future Extensions
+extend google.protobuf.MethodOptions {
+  optional uint32 execution_timeout = 51234;  // Default timeout in milliseconds
+}
+
+// Reserved Fields for Backward Compatibility
+message ReservedFields {
+  reserved 1000 to 2000;
+  reserved "legacy_command", "deprecated_config";
+}
